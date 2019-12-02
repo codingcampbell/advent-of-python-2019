@@ -1,4 +1,4 @@
-import subprocess
+from importlib import import_module
 import argparse
 import shutil
 import requests
@@ -16,10 +16,6 @@ def download_input(day, file_name, session_id=AOC_SESSION_ID):
             shutil.copyfileobj(r.raw, f)
 
 
-def get_full_path(p):
-    return path.join(path.realpath(path.dirname(__file__)), p)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--day', type=int, required=True)
@@ -32,8 +28,7 @@ def main():
     parts = list({p for p in parts if p in default_parts}) or default_parts
     parts.sort()
 
-    src_dir = get_full_path('src')
-    input_dir = get_full_path('input')
+    input_dir = path.join(path.realpath(path.dirname(__file__)), 'input')
     makedirs(input_dir, exist_ok=True)
 
     input_file = path.join(input_dir, 'day-{:02d}.txt'.format(day))
@@ -51,8 +46,8 @@ def main():
         print('')
         print('Part {:02d}:'.format(part))
         with open(input_file) as f:
-            script = 'day-{:02d}/part_{:02d}.py'.format(day, part)
-            subprocess.run(['python', path.join(src_dir, script)], stdin=f)
+            mod = 'src.day_{:02d}.part_{:02d}'.format(day, part)
+            import_module(mod).main(f)
 
 
 if __name__ == '__main__':

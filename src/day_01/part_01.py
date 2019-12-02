@@ -1,3 +1,6 @@
+import sys
+
+
 def get_fuel(mass):
     """
     Fuel required to launch a given module is based on its mass.
@@ -41,5 +44,4 @@ def main(input_file):
 
 
 if __name__ == '__main__':
-    import sys
     main(sys.stdin)

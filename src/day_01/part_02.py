@@ -1,4 +1,5 @@
-from part_01 import get_fuel
+import sys
+from .part_01 import get_fuel
 
 
 def get_total_fuel(mass):
@@ -46,5 +47,4 @@ def main(input_file):
 
 
 if __name__ == '__main__':
-    import sys
     main(sys.stdin)

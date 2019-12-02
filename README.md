@@ -25,7 +25,7 @@ python main.py -d 1 -p 2
 The individual scripts just read input from `stdin`, so if you don't want to use the magical fun things above, you can just invoke python manually and pass a file handle:
 
 ```
-python src/day-01/part_02.py < day-01-input.txt
+python -m src.day_01.part_02.py < day-01-input.txt
 ```
 
 
