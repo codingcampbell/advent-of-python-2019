@@ -1,5 +1,6 @@
 import sys
-from .part_01 import parse_input, intcode_program
+from .part_01 import parse_input
+from ..intcode import vm
 
 
 def find_noun_and_verb(base_state, needle):
@@ -8,7 +9,7 @@ def find_noun_and_verb(base_state, needle):
             state = base_state[:]  # Copy so base_state is not mutated
             state[1] = noun
             state[2] = verb
-            intcode_program(state)
+            vm.run_program(state)
 
             if state[0] == needle:
                 return noun, verb
