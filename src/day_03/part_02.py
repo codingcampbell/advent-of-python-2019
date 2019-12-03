@@ -2,27 +2,10 @@ import sys
 from .part_01 import parse_input
 
 
-def count_intersection_steps(line1, line2, central=(0, 0)):
-    result = {}
-    steps = 0
-    for point in line1:
-        if point != central and point not in result and point in line2:
-            result[point] = steps
-
-        steps += 1
-
-    return result
-
-
 def main(input_file):
-    lines = parse_input(input_file)
-
-    steps = [
-        count_intersection_steps(lines[0], lines[1]),
-        count_intersection_steps(lines[1], lines[0]),
-    ]
-
-    min_steps = min(steps[0][k] + steps[1][k] for k in steps[0])
+    lines, crossings = parse_input(input_file)
+    keys = (c for c in crossings if lines[0][c] > 0 and lines[1][c] > 0)
+    min_steps = min((lines[0][k] + lines[1][k] for k in keys))
     print(min_steps)
 
 
