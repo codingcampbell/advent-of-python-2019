@@ -40,54 +40,58 @@ class ParameterMode(IntEnum):
 
 
 class Instruction:
-    def __init__(self, param_modes):
-        self.num_parameters = 0
-        self.param_modes = param_modes
+    num_parameters = 0
 
     @staticmethod
     def from_instruction_int(instruction_int):
         opcode, param_modes = OpCode.from_instruction_int(instruction_int)
-        instruction = _instructions.get(opcode, None)
-        if not instruction:
-            return None
+        return _instructions.get(opcode, None), param_modes
 
-        return instruction(param_modes)
+    def __init__(self, param_modes, stack, state, program):
+        self.param_modes = param_modes
+        self.stack = stack
+        self.state = state
+        self.program = program
+        self.validate()
 
-    def validate(self, stack, state):
-        n = self.num_parameters
-        if len(stack) != n:
+    def validate(self):
+        n = type(self).num_parameters
+        if len(self.stack) != n:
             raise ValueError('Expected {} parameters in `stack`'.format(n))
 
-    def exec(self, stack, state):
-        self.validate()
+        while len(self.param_modes) != n:
+            # Assume POSITION mode for missing modes
+            self.param_modes.append(ParameterMode.POSITION)
+
+    def exec(self):
         return True
+
+    def get_param(self, index):
+        if self.param_modes[index] == ParameterMode.IMMEDIATE:
+            return self.stack[index]
+
+        # Default ParameterMode.POSITION
+        return self.state[self.stack[index]]
 
 
 class InstructionAdd(Instruction):
-    def __init__(self, param_modes):
-        super().__init__(param_modes)
-        self.num_parameters = 3
+    num_parameters = 3
 
-    def exec(self, stack, state, program):
-        super().validate(stack, state)
-        state[stack[2]] = state[stack[0]] + state[stack[1]]
+    def exec(self):
+        self.state[self.stack[2]] = self.get_param(0) + self.get_param(1)
         return True
 
 
 class InstructionMultiply(Instruction):
-    def __init__(self, param_modes):
-        super().__init__(param_modes)
-        self.num_parameters = 3
+    num_parameters = 3
 
-    def exec(self, stack, state, program):
-        super().validate(stack, state)
-        state[stack[2]] = state[stack[0]] * state[stack[1]]
+    def exec(self):
+        self.state[self.stack[2]] = self.get_param(0) * self.get_param(1)
         return True
 
 
 class InstructionHalt(Instruction):
-    def exec(self, stack, state, program):
-        super().validate(stack, state)
+    def exec(self):
         return False
 
 
