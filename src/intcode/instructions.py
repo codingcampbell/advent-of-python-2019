@@ -4,6 +4,8 @@ from enum import IntEnum
 class OpCode(IntEnum):
     ADD = 1
     MULTIPLY = 2
+    STORE = 3
+    OUTPUT = 4
     HALT = 99
 
     @staticmethod
@@ -90,6 +92,22 @@ class InstructionMultiply(Instruction):
         return True
 
 
+class InstructionStore(Instruction):
+    num_parameters = 1
+
+    def exec(self):
+        self.state[self.stack[0]] = self.program['input']
+        return True
+
+
+class InstructionOutput(Instruction):
+    num_parameters = 1
+
+    def exec(self):
+        self.program['output'] = self.get_param(0)
+        return True
+
+
 class InstructionHalt(Instruction):
     def exec(self):
         return False
@@ -98,5 +116,7 @@ class InstructionHalt(Instruction):
 _instructions = {
     OpCode.ADD: InstructionAdd,
     OpCode.MULTIPLY: InstructionMultiply,
+    OpCode.STORE: InstructionStore,
+    OpCode.OUTPUT: InstructionOutput,
     OpCode.HALT: InstructionHalt,
 }

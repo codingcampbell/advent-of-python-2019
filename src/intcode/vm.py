@@ -44,3 +44,12 @@ def test_run_program():
     state = [1101, 100, -1, 4, 0]
     run_program(state)
     assert state[4] == 99
+
+    # Test InstructionStore
+    state = [3, 3, 99, 0]
+    run_program(state, 10)
+    assert state[3] == 10
+
+    # run_program should return result of InstructionOutput
+    state = [104, 52]
+    assert run_program(state) == 52
