@@ -24,12 +24,19 @@ def run_program(state, input=None):
         pointer += 1  # Move pointer to beginning of arguments
         stack = state[pointer:pointer + stack_size]
         instruction = instruction_class(param_modes, stack, state, program)
+        result = instruction.exec()
 
-        # Instructions can return False to halt execution
-        if not instruction.exec():
+        # Instructions can return -1 to halt execution
+        if result == -1:
             break
 
-        pointer += stack_size
+        # Instructions can return ints to change pointer (e.g. for jumps)
+        if type(result) == int:
+            pointer = result
+
+        # Otherwise we move the pointer as usual
+        else:
+            pointer += stack_size
 
     return program['output']
 

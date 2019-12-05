@@ -6,6 +6,10 @@ class OpCode(IntEnum):
     MULTIPLY = 2
     STORE = 3
     OUTPUT = 4
+    JUMP_IF_TRUE = 5
+    JUMP_IF_FALSE = 6
+    LESS_THAN = 7
+    EQUALS = 8
     HALT = 99
 
     @staticmethod
@@ -66,7 +70,7 @@ class Instruction:
             self.param_modes.append(ParameterMode.POSITION)
 
     def exec(self):
-        return True
+        return None
 
     def get_param(self, index):
         if self.param_modes[index] == ParameterMode.IMMEDIATE:
@@ -81,7 +85,6 @@ class InstructionAdd(Instruction):
 
     def exec(self):
         self.state[self.stack[2]] = self.get_param(0) + self.get_param(1)
-        return True
 
 
 class InstructionMultiply(Instruction):
@@ -89,7 +92,6 @@ class InstructionMultiply(Instruction):
 
     def exec(self):
         self.state[self.stack[2]] = self.get_param(0) * self.get_param(1)
-        return True
 
 
 class InstructionStore(Instruction):
@@ -97,7 +99,6 @@ class InstructionStore(Instruction):
 
     def exec(self):
         self.state[self.stack[0]] = self.program['input']
-        return True
 
 
 class InstructionOutput(Instruction):
@@ -105,12 +106,64 @@ class InstructionOutput(Instruction):
 
     def exec(self):
         self.program['output'] = self.get_param(0)
-        return True
 
 
 class InstructionHalt(Instruction):
     def exec(self):
-        return False
+        return -1
+
+
+class InstructionJumpIfTrue(Instruction):
+    """
+    Opcode 5 is jump-if-true: if the first parameter is non-zero, it sets the
+    instruction pointer to the value from the second parameter. Otherwise, it
+    does nothing.
+    """
+
+    num_parameters = 2
+
+    def exec(self):
+        return self.get_param(1) if self.get_param(0) != 0 else None
+
+
+class InstructionJumpIfFalse(Instruction):
+    """
+    Opcode 6 is jump-if-false: if the first parameter is zero, it sets the
+    instruction pointer to the value from the second parameter. Otherwise, it
+    does nothing.
+    """
+
+    num_parameters = 2
+
+    def exec(self):
+        return self.get_param(1) if self.get_param(0) == 0 else None
+
+
+class InstructionLessThan(Instruction):
+    """
+    Opcode 7 is less than: if the first parameter is less than the second
+    parameter, it stores 1 in the position given by the third parameter.
+    Otherwise, it stores 0.
+    """
+
+    num_parameters = 3
+
+    def exec(self):
+        result = 1 if self.get_param(0) < self.get_param(1) else 0
+        self.state[self.stack[2]] = result
+
+
+class InstructionEquals(Instruction):
+    """
+    Opcode 8 is equals: if the first parameter is equal to the second
+    parameter, it stores 1 in the position given by the third parameter.
+    Otherwise, it stores 0.
+    """
+    num_parameters = 3
+
+    def exec(self):
+        result = 1 if self.get_param(0) == self.get_param(1) else 0
+        self.state[self.stack[2]] = result
 
 
 _instructions = {
@@ -118,5 +171,9 @@ _instructions = {
     OpCode.MULTIPLY: InstructionMultiply,
     OpCode.STORE: InstructionStore,
     OpCode.OUTPUT: InstructionOutput,
+    OpCode.JUMP_IF_TRUE: InstructionJumpIfTrue,
+    OpCode.JUMP_IF_FALSE: InstructionJumpIfFalse,
+    OpCode.LESS_THAN: InstructionLessThan,
+    OpCode.EQUALS: InstructionEquals,
     OpCode.HALT: InstructionHalt,
 }
